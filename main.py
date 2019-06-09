@@ -19,8 +19,7 @@ def run():
     parser.add_argument('-c',
                         '--config',
                         dest='config',
-                        default=os.path.join(os.path.dirname(__file__),
-                                             'config.json'),
+                        default='config.json',
                         help='Path to the config file')
     parser.add_argument('-d',
                         '--dry-run',
