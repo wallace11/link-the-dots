@@ -10,11 +10,13 @@ class TestConfig(unittest.TestCase):
         self.fake_config = {'general': {}}
         self.hostname = gethostname().lower()
 
-    def makeconf(self, fake_config):
+    def makeconf(self, fake_config, use_dumps=True):
         from json import dumps
         from unittest.mock import patch, mock_open
 
-        fake_config = dumps(fake_config)
+        if use_dumps:
+            fake_config = dumps(fake_config)
+
         with patch('builtins.open'.format(__name__),
                    new=mock_open(read_data=fake_config)) as f:
             fake_path = 'file/path/mock'
@@ -31,6 +33,19 @@ class TestConfig(unittest.TestCase):
     def test_empty(self):
         with self.assertRaises(Warning):
             self.makeconf(self.fake_config).read()
+
+    def test_incorrectly_formatted(self):
+        fake_config = '{ \
+        "general": { \
+            "containers": { \
+                "fake": { \
+                    "source": "/path/to/fake" \
+                } \
+            } \
+        }'  # Missing one closing bracket
+
+        with self.assertRaises(Warning):
+            self.makeconf(fake_config, use_dumps=False).read()
 
     def test_uppercase_section_name(self):
         self.fake_config[self.hostname.upper()] = {}

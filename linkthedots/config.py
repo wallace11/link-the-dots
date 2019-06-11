@@ -9,6 +9,8 @@ class Config():
                 self.config = json.load(c)
         except FileNotFoundError:
             raise Warning('File "{}" not found.'.format(conf))
+        except json.decoder.JSONDecodeError as e:
+            raise Warning('Incorrectly formatted config file ({})'.format(e))
 
     def _get_section(self, hostname=gethostname()):
         """
