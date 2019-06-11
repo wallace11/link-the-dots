@@ -162,7 +162,7 @@ def show_results(stow_result,
         ]
 
         if not any(notify_states):
-            style.done(stats, 'check', len(title), 'notify')
+            style.done(stats, 'check', len(title) + 2, 'notify')
             return True
 
         notify_states = list(filter(None, notify_states))
