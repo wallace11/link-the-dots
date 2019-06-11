@@ -158,3 +158,7 @@ def show_results(stow_result,
                    **style.stow_states[state])
 
     style.print(stats, 'check', bold=True)
+
+
+if __name__ == '__main__':
+    run()
