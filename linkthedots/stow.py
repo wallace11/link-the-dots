@@ -94,32 +94,32 @@ class Stow():
 
         # Symlink all files
         for src, dest in files:
-            relative_path = os.path.relpath(src, os.path.dirname(dest))
+            # Use absolute path if dest dir is a symlink,
+            # otherwise use a relative path
+            src_path = (src if os.path.islink(os.path.dirname(dest)) else
+                        os.path.relpath(src, os.path.dirname(dest)))
 
             flag = 'stowed'
             while True:
                 try:
                     try:
                         if not self.dry_run:
-                            os.symlink(relative_path, dest)
+                            os.symlink(src_path, dest)
                         else:
                             if os.path.isfile(dest):
                                 raise FileExistsError
                     except FileExistsError:
                         if os.path.islink(dest):
                             flag = 'restowed'
-                            if not self.dry_run:
-                                os.remove(dest)
-                            else:
-                                break
                         elif self.overwrite:
                             flag = 'replaced'
-                            if not self.dry_run:
-                                os.remove(dest)
-                            else:
-                                break
                         else:
                             flag = 'skipped'
+                            break
+
+                        if not self.dry_run:
+                            os.remove(dest)
+                        else:
                             break
                     except FileNotFoundError:
                         # Create parent tree
@@ -133,5 +133,3 @@ class Stow():
             output['results'][flag].append((src, dest))
 
         return output
-
-
