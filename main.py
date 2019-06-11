@@ -141,7 +141,7 @@ def show_results(stow_result,
                  title,
                  source,
                  destination,
-                 dry_run=False,
+                 verbose=False,
                  group_output=False,
                  **kwargs):
     results = stow_result.get('results')
@@ -154,7 +154,7 @@ def show_results(stow_result,
     stats = ', '.join(stats) if stats else 'Nothing changed'
 
     # Show results
-    if dry_run:
+    if verbose:
         notify_states = results.items()
     else:
         notify_states = [
