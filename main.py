@@ -15,27 +15,18 @@ style = Style()
 
 def run():
     # Parse terminal arguments
-    parser = argparse.ArgumentParser(description='Link your dot(file)s.')
-    parser.add_argument('-c',
-                        '--config',
-                        dest='config',
-                        default='config.json',
-                        help='Path to the config file')
-    parser.add_argument('-d',
-                        '--dry-run',
-                        dest='dry_run',
-                        default=None,
-                        action='store_true',
-                        help='Forces dry-run (no change) mode')
-    args = parser.parse_args()
+    args = parse_args()
 
+    # Read config
     try:
         options = Config(conf=args.config).read()
     except Warning as e:
         exit('Config error: {}'.format(e))
 
-    if args.dry_run:
-        options['dry_run'] = True
+    # Overwrite options from commandline args
+    for opt in ('dry_run', 'overwrite', 'verbose'):
+        if getattr(args, opt):
+            options[opt] = True
 
     options.get('dry_run', None) and style.print(
         'Running in dry (no change) mode...', 'notify', bold=False)
@@ -75,6 +66,36 @@ def run():
             style.print(
                 'No valid destination for container "{}". Skipping...'.format(
                     ctnr), 'warning')
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Link your dot(file)s.')
+    parser.add_argument('-c',
+                        '--config',
+                        dest='config',
+                        default='config.json',
+                        help='Path to the config file')
+    parser.add_argument('-d',
+                        '--dry-run',
+                        dest='dry_run',
+                        default=None,
+                        action='store_true',
+                        help='Forces dry-run (no change) mode')
+    parser.add_argument('-o',
+                        '--overwrite',
+                        dest='overwrite',
+                        default=None,
+                        action='store_true',
+                        help=('Overwrite conflicting files in destination '
+                              '(Warning: Can cause data loss!)'))
+    parser.add_argument('-v',
+                        '--verbose',
+                        dest='verbose',
+                        default=None,
+                        action='store_true',
+                        help='Behold! Every change is going to be listed!')
+
+    return parser.parse_args()
 
 
 def stow_container(container, **opts):
