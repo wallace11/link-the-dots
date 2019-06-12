@@ -102,6 +102,30 @@ class TestConfig(unittest.TestCase):
             with self.assertRaises(Warning):
                 self.makeconf(self.fake_config).read()
 
+    def test_hostname(self):
+        self.fake_config['general'] = {'containers': {'fake': ''}}
+
+        # Scenario 1: (section = hostname), no name key => (name = section)
+        self.fake_config[self.hostname] = {'containers': {}}
+        self.assertEqual(
+            self.makeconf(self.fake_config).read()['name'], self.hostname)
+
+        # Scenario 2: (section = hostname), (name = 'fake') => (name = 'fake')
+        self.fake_config[self.hostname] = {'name': 'fake', 'containers': {}}
+        self.assertEqual(
+            self.makeconf(self.fake_config).read()['name'], 'fake')
+
+        # Scenario 3: (section = 'fake'), (name = hostname) => (name = hostname)
+        del self.fake_config[self.hostname]  # Remove previous key
+        self.fake_config['fake'] = {'name': self.hostname, 'containers': {}}
+        self.assertEqual(
+            self.makeconf(self.fake_config).read()['name'], self.hostname)
+
+        # Scenario 4: (section = 'fake'), (name = 'fake') => Error
+        self.fake_config['fake'] = {'name': 'fake', 'containers': {}}
+        with self.assertRaises(Warning):
+            self.makeconf(self.fake_config).read()
+
     def test_output(self):
         fake_config = {
             'general': {
