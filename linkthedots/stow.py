@@ -5,7 +5,7 @@ class Stow():
     def __init__(self,
                  source,
                  destination,
-                 hostname,
+                 name,
                  dry_run=False,
                  overwrite=False,
                  verbose=False,
@@ -13,7 +13,7 @@ class Stow():
                  exclude=[]):
         self.src = os.path.expanduser(source)
         self.dest = os.path.expanduser(destination)
-        self.hostname = hostname
+        self.name = name
         self.dry_run = dry_run
         self.overwrite = overwrite
         self.verbose = verbose
@@ -46,14 +46,14 @@ class Stow():
 
             return verdict
 
-        def check_hostname(path):
+        def check_name(path):
             """
-            Checks whether path contains a hostname hint (indicated by '#')
-            and returns a value based on its match with the current hostname.
+            Checks whether path contains a name hint (indicated by '#')
+            and returns a value based on its match with the current name.
             """
             base = os.path.basename(path)
-            no_host, *hostname = base.split('#')
-            if hostname and (self.hostname not in hostname):
+            no_host, *name = base.split('#')
+            if name and (self.name not in name):
                 return False, False
             return base, no_host
 
@@ -63,7 +63,7 @@ class Stow():
                                     os.path.relpath(root, start=self.src))
 
             # Do not descend into dirs not meant for this host
-            base, no_host = check_hostname(dest_dir)
+            base, no_host = check_name(dest_dir)
             if not no_host:
                 dirs[:] = []
                 continue
@@ -76,7 +76,7 @@ class Stow():
             # Find out all the files to link
             for f in files:
                 # Skip files not meant for this host
-                base, no_host = check_hostname(f)
+                base, no_host = check_name(f)
                 if not no_host:
                     continue
 

@@ -125,7 +125,7 @@ def stow_container(container, **opts):
             rule, s_files = 'include', []
 
         # Execute
-        stow_args = ('destination', 'hostname', 'dry_run', 'overwrite',
+        stow_args = ('destination', 'name', 'dry_run', 'overwrite',
                      'verbose')
         stow_args = {arg: opts.get(arg, None) for arg in stow_args}
         stow_args.update({'source': os.path.join(source, pkg), rule: s_files})

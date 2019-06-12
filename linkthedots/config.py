@@ -14,12 +14,12 @@ class Config():
 
     def _get_section(self, hostname=gethostname()):
         """
-        Checks if hostname equals to hostname key value in any section.
-        If it's not - return the hostname.
+        Checks if hostname equals to "name" key value in any section.
+        If it's not - return the hostname of the machine.
         """
         hostname = hostname.lower()
         for sect, value in self.config.items():
-            sect_host = value.get('hostname', '').lower()
+            sect_host = value.get('name', '').lower()
             if sect_host == hostname:
                 return sect
 
@@ -30,8 +30,8 @@ class Config():
         try:
             section = self._get_section()
             host = self.config[section]
-            if 'hostname' not in host:
-                host['hostname'] = section
+            if 'name' not in host:
+                host['name'] = section
         except KeyError:
             if section in map(lambda x: x.lower(), self.config.keys()):
                 raise Warning('Section names must be in lowercase.')

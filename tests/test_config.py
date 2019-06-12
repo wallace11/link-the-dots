@@ -132,7 +132,7 @@ class TestConfig(unittest.TestCase):
         }
 
         expected = {
-            'hostname': self.hostname,  # Added key
+            'name': self.hostname,  # Added key
             'overwrite': True,
             'dry_run': False,
             'group_output': None,  # Is added
