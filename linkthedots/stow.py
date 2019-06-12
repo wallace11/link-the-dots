@@ -36,13 +36,12 @@ class Stow():
                 # Hence, we have to define the target accordingly
                 target = item if '/' in rule else os.path.basename(item)
 
-                # Get the verdict according to the present rule (include/exclude)
-                verdict = (rule in target) if self.include else (
-                    rule not in target)
-
-                # A positive verdict is absolute and gets transferred immediately
-                if verdict:
-                    break
+                if rule in target:
+                    verdict = True if self.include else False
+                    break  # No need to keep searching if we have a hit
+            else:
+                # No rules defined - fallback to default
+                verdict = False if self.include else True
 
             return verdict
 
