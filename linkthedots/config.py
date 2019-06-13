@@ -61,7 +61,7 @@ class Config():
 
                 try:
                     # Convert packages to a proper list
-                    if not isinstance(items['packages'], list):
+                    if not isinstance(items.get('packages', []), list):
                         host['containers'][ctnr]['packages'] = items[
                             'packages'].split()
 
