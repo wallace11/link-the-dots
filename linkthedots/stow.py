@@ -76,8 +76,8 @@ class Stow():
             # Find out all the files to link
             for f in files:
                 # Skip files not meant for this host
-                base, no_host = check_name(f)
-                if not no_host:
+                base, name = check_name(f)
+                if not name:
                     continue
 
                 src = os.path.join(root, f)
