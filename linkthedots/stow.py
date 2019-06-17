@@ -61,14 +61,15 @@ class Stow():
             dest_dir = os.path.join(self.dest,
                                     os.path.relpath(root, start=self.src))
 
-            # Do not descend into dirs not meant for this host
             base, name = check_name(dest_dir)
             if not name:
+                # Do not descend into dirs not meant for this host
                 dirs[:] = []
                 continue
             elif base != name:
                 replace_hints.append((base, name))
 
+            # Applying this for every child of the dir as well
             for before, after in replace_hints:
                 dest_dir = dest_dir.replace(before, after, 1)
 
