@@ -13,7 +13,7 @@ class Stow():
                  exclude=[]):
         self.src = os.path.expanduser(source)
         self.dest = os.path.expanduser(destination)
-        self.name = name
+        self.hostname = name
         self.dry_run = dry_run
         self.overwrite = overwrite
         self.verbose = verbose
@@ -51,10 +51,10 @@ class Stow():
             and returns a value based on its match with the current name.
             """
             base = os.path.basename(path)
-            no_host, *name = base.split('#')
-            if name and (self.name not in name):
+            name, *hostnames = base.split('#')
+            if hostnames and (self.hostname not in hostnames):
                 return False, False
-            return base, no_host
+            return base, name
 
         output, replace_hints = [], []
         for root, dirs, files in os.walk(self.src, followlinks=True):
@@ -62,12 +62,12 @@ class Stow():
                                     os.path.relpath(root, start=self.src))
 
             # Do not descend into dirs not meant for this host
-            base, no_host = check_name(dest_dir)
-            if not no_host:
+            base, name = check_name(dest_dir)
+            if not name:
                 dirs[:] = []
                 continue
-            elif base != no_host:
-                replace_hints.append((base, no_host))
+            elif base != name:
+                replace_hints.append((base, name))
 
             for before, after in replace_hints:
                 dest_dir = dest_dir.replace(before, after, 1)
