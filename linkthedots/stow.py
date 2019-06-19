@@ -82,7 +82,7 @@ class Stow():
 
                 src = os.path.join(root, f)
                 if need(src):
-                    dest = os.path.normpath(os.path.join(dest_dir, no_host))
+                    dest = os.path.normpath(os.path.join(dest_dir, name))
                     output.append((src, dest))
 
         return output
