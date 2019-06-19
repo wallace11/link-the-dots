@@ -17,8 +17,7 @@ class TestConfig(unittest.TestCase):
         if use_dumps:
             fake_config = dumps(fake_config)
 
-        with patch('builtins.open'.format(__name__),
-                   new=mock_open(read_data=fake_config)) as f:
+        with patch('builtins.open', new=mock_open(read_data=fake_config)) as f:
             fake_path = 'file/path/mock'
             config = Config(conf=fake_path)
             # Check that file was opened
@@ -42,7 +41,7 @@ class TestConfig(unittest.TestCase):
                     "source": "/path/to/fake" \
                 } \
             } \
-        }'  # Missing one closing bracket
+        }'                                # Missing one closing bracket
 
         with self.assertRaises(Warning):
             self.makeconf(fake_config, use_dumps=False).read()
