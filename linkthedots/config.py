@@ -26,6 +26,19 @@ class Config():
         return hostname
 
     def read(self):
+        def dict_update(base, extra):
+            """ Copies over `extra` to `base` AND overwrites keys """
+            # Check if there are any nested dicts
+            if any(map(lambda x: isinstance(x, dict), base.values())):
+                for k, v in extra.items():
+                    try:
+                        dict_update(base[k], v)
+                    except (KeyError, AttributeError):
+                        base[k] = v
+            else:
+                base.update(extra)
+            return base
+
         # Get config section
         try:
             section = self._get_section()
@@ -46,12 +59,11 @@ class Config():
                 try:
                     # Try to copy over container options from general section
                     general_ctnr = self.config['general']['containers'][ctnr]
-                    general_ctnr.update(items)
-                    host['containers'][ctnr] = general_ctnr
-                except AttributeError:  # Raises if not a dict
+                    host['containers'][ctnr] = dict_update(general_ctnr, items)
+                except AttributeError as e:  # Raises if not a dict
                     if 'source' not in items:
                         # Fallback to source option
-                        items['source'] = general_ctnr
+                        host['containers'][ctnr]['source'] = general_ctnr
                 except KeyError:
                     raise Warning(
                         'Container "{}" doesn\'t appear in "general".'.format(
@@ -65,17 +77,19 @@ class Config():
                         host['containers'][ctnr]['packages'] = items[
                             'packages'].split()
 
-                    # Convert rules' files to a proper list
+                    # Convert rules' files (second list item) to a proper list
                     try:
-                        if items.get('rules'):
-                            host['containers'][ctnr]['rules'] = items['rules']
-                        for pkg, rule in host['containers'][ctnr][
-                                'rules'].items():
-                            if not isinstance(rule[1], list):
-                                rule[1] = rule[1].split()
-                    except TypeError:
+                        for pkg, (rule, files) in (
+                                host['containers'][ctnr]['rules'].items()):
+                            try:
+                                host['containers'][ctnr]['rules'][pkg][1] = (
+                                    files.split())
+                            except AttributeError:
+                                pass
+                    except (TypeError, ValueError):
                         raise Warning(
-                            'Improperly formatted rule: "{}".'.format(rule))
+                            'Improperly formatted rule "{}" in "{}" container.'
+                            .format(pkg, ctnr))
                     except AttributeError:
                         raise Warning(
                             'Improperly formatted rules for "{}"'.format(ctnr))
