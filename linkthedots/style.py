@@ -1,4 +1,3 @@
-
 class Style():
     def __init__(self):
         self.RESET = '0'
@@ -105,17 +104,15 @@ class Style():
         ]
         print(' '.join(output))
 
-    def done(self, text, sign, col, style):
+    def done(self, text, style, col):
         output = [
             self._set_command('erase_line'),
             self._set_command('up'),
-            self._msg('', **self.templates[sign]),
+            self._msg('', **self.templates[style]),
             self._set_command('right', col),
             self._msg(text,
                       '',
-                      colors=self.templates[sign]['colors'],
+                      colors=self.templates[style]['colors'],
                       bold=True)
         ]
         print(''.join(output))
-
-

@@ -157,18 +157,20 @@ def show_results(stow_result,
     if verbose:
         notify_states = results.items()
     else:
+        # Notify only on certain results
         notify_states = [
             results[k] and (k, results[k]) for k in ('replaced', 'skipped')
         ]
 
         if not any(notify_states):
-            style.done(stats, 'check', len(title) + 2, 'notify')
+            style.done(stats, 'check', len(title) + 2)
             return True
 
-        notify_states = list(filter(None, notify_states))
-
     res = ((state, f) for state, files in notify_states for f in files)
+
     if not group_output:
+        # Results are grouped by default and need to be sorted according to
+        # the original files list otherwise.
         order = {f: i for i, f in enumerate(stow_result['files'])}
         res = sorted(res, key=lambda x: order.get(x[1]))
 
