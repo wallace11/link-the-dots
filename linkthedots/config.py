@@ -71,30 +71,39 @@ class Config():
                 except TypeError:
                     raise Warning('Improperly formatted general "Containers".')
 
-                try:
-                    # Convert packages to a proper list
-                    if not isinstance(items.get('packages', []), list):
-                        host['containers'][ctnr]['packages'] = items[
-                            'packages'].split()
+                # Convert packages to a proper list
+                if not isinstance(items.get('packages', []), list):
+                    host['containers'][ctnr]['packages'] = items[
+                        'packages'].split()
 
-                    # Convert rules' files (second list item) to a proper list
-                    try:
-                        for pkg, (rule, files) in (
-                                host['containers'][ctnr]['rules'].items()):
-                            try:
+                # Convert rules' files (second list item) to a proper list
+                try:
+                    is_pkg = host['containers'][ctnr].get('pkg')
+                    rules = host['containers'][ctnr].get('rules', {})
+
+                    if rules and is_pkg:
+                        rules = {ctnr: rules}
+
+                    for pkg, (rule, files) in rules.items():
+                        try:
+                            if not is_pkg:
                                 host['containers'][ctnr]['rules'][pkg][1] = (
                                     files.split())
-                            except AttributeError:
-                                pass
-                    except (TypeError, ValueError):
-                        raise Warning(
-                            'Improperly formatted rule "{}" in "{}" container.'
-                            .format(pkg, ctnr))
-                    except AttributeError:
-                        raise Warning(
-                            'Improperly formatted rules for "{}"'.format(ctnr))
-                except KeyError:
-                    pass
+                            else:
+                                host['containers'][ctnr]['rules'][1] = (
+                                    files.split())
+                        except AttributeError:
+                            # Already a list
+                            pass
+                except TypeError:
+                    raise Warning(
+                        'Improperly formatted rule "{}" in "{}" container.'.
+                        format(pkg, ctnr))
+                except (AttributeError, KeyError, ValueError):
+                    err = 'Improperly formatted rules for "{}"'.format(ctnr)
+                    if is_pkg:
+                        err += ' (maybe because "pkg" is True?)'
+                    raise Warning(err)
         except AttributeError:
             raise Warning(
                 'Improperly formatted "containers" value in "{}".'.format(

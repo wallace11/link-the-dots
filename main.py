@@ -119,10 +119,15 @@ def stow_container(container, **opts):
             continue
 
         # Work out include/exclude files
+        rule_fallback = ('include', [])
         try:
-            rule, s_files = opts['rules'][pkg]
-        except KeyError:
-            rule, s_files = 'include', []
+            if not opts.get('pkg'):
+                rule, s_files = opts.get('rules', {}).get(pkg, rule_fallback)
+            else:
+                rule, s_files = opts.get('rules', rule_fallback)
+        except ValueError:
+            # Empty rules
+            rule, s_files = rule_fallback
 
         # Execute
         stow_args = ('destination', 'name', 'dry_run', 'overwrite',
