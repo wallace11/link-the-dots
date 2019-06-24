@@ -41,7 +41,7 @@ class TestConfig(unittest.TestCase):
                     "source": "/path/to/fake" \
                 } \
             } \
-        }'                                # Missing one closing bracket
+        }'                                                    # Missing one closing bracket
 
         with self.assertRaises(Warning):
             self.makeconf(fake_config, use_dumps=False).read()
@@ -101,6 +101,19 @@ class TestConfig(unittest.TestCase):
             with self.assertRaises(Warning):
                 self.makeconf(self.fake_config).read()
 
+        # Test container is package
+        # yapf: disable
+        bad = [{'rules': ''},
+               {'rules': {'pkg': ''}}
+               ]
+        # yapf: enable
+        self.fake_config[self.hostname]['containers']['fake']['pkg'] = True
+
+        for b in bad:
+            self.fake_config[self.hostname]['containers']['fake'].update(b)
+            with self.assertRaises(Warning):
+                self.makeconf(self.fake_config).read()
+
     def test_hostname(self):
         self.fake_config['general'] = {'containers': {'fake': ''}}
 
@@ -132,7 +145,10 @@ class TestConfig(unittest.TestCase):
                     'fake': '/path/to/fake',
                     'faker': {
                         'source': '/path/to/src',
-                        'destination': '/path/to/dest'
+                        'destination': '/path/to/dest',
+                        'rules': {
+                            'pkg2': ['exclude', 'file']
+                        }
                     }
                 }
             },
@@ -148,7 +164,9 @@ class TestConfig(unittest.TestCase):
                     },
                     'fake': {
                         'source': '/this/is/the/source',
-                        'destination_create': True
+                        'destination_create': True,
+                        'pkg': True,
+                        'rules': ['include', ['file']]
                     }
                 }
             }
@@ -165,13 +183,16 @@ class TestConfig(unittest.TestCase):
                     'destination': '/path/to/dest',
                     'packages': ['pkg1', 'pkg2'],  # A list
                     'rules': {
-                        'pkg1': ['include', ['file']]  # A list in a list
+                        'pkg1': ['include', ['file']],  # A list in a list
+                        'pkg2': ['exclude', ['file']]  # Key was retained
                     }
                 },
                 'fake': {
                     'source':
                     '/this/is/the/source',  # Overwrites general value
-                    'destination_create': True
+                    'destination_create': True,
+                    'pkg': True,
+                    'rules': ['include', ['file']]  # Remains unchanged
                 }
             }
         }
