@@ -109,7 +109,8 @@ def stow_container(container, **opts):
 
     # Stow packages
     for pkg in pkgs:
-        title = 'Stowing {}...'.format(pkg)
+        title = 'Stowing {}...'.format(
+            pkg if not opts.get('pkg') else container)
         style.print(title, 'title', bold=False)
 
         # Skip packages that do not exist
