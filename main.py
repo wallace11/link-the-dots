@@ -102,10 +102,8 @@ def stow_container(container, **opts):
     source = os.path.expanduser(opts['source'])
 
     # Work out packages to stow
-    if opts.get('pkg', False):
-        pkgs = [source]
-    else:
-        pkgs = opts.get('packages', os.listdir(source))
+    pkgs = [source] if opts.get('pkg') else opts.get('packages',
+                                                     os.listdir(source))
 
     # Stow packages
     for pkg in pkgs:
@@ -131,8 +129,7 @@ def stow_container(container, **opts):
             rule, s_files = rule_fallback
 
         # Execute
-        stow_args = ('destination', 'name', 'dry_run', 'overwrite',
-                     'verbose')
+        stow_args = ('destination', 'name', 'dry_run', 'overwrite', 'verbose')
         stow_args = {arg: opts.get(arg, None) for arg in stow_args}
         stow_args.update({'source': os.path.join(source, pkg), rule: s_files})
 
