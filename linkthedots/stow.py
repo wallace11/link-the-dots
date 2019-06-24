@@ -103,6 +103,10 @@ class Stow():
             while True:
                 try:
                     try:
+                        if src == dest:
+                            flag = 'skipped'
+                            break
+
                         if not self.dry_run:
                             os.symlink(src_path, dest)
                         else:
