@@ -161,11 +161,12 @@ def show_results(stow_result,
         notify_states = results.items()
     else:
         # Notify only on certain results
-        notify_states = [
-            results[k] and (k, results[k]) for k in ('replaced', 'skipped')
-        ]
+        to_notify = ('replaced', 'skipped')
+        notify_states = [(state, results[state]) for state in to_notify
+                         if results[state]]
 
-        if not any(notify_states):
+        # Just show summary if there's nothing special to display
+        if not notify_states:
             style.done(stats, 'check', len(title) + 2)
             return True
 
