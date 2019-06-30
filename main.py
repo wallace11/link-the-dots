@@ -35,9 +35,6 @@ def run():
 
     containers = options.get('containers')
 
-    if not containers:
-        style.print('Nothing to do...', 'warning')
-
     for ctnr, opt in containers.items():
         try:
             try:
