@@ -32,7 +32,6 @@ def run():
         'Running in dry (no change) mode...', 'notify', bold=False)
 
     extra_opts = {k: v for k, v in options.items() if k != 'containers'}
-
     containers = options.get('containers')
 
     for ctnr, opt in containers.items():
