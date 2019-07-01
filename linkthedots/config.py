@@ -72,9 +72,15 @@ class Config():
                     raise Warning('Improperly formatted general "Containers".')
 
                 # Convert packages to a proper list
-                if not isinstance(items.get('packages', []), list):
-                    host['containers'][ctnr]['packages'] = items[
-                        'packages'].split()
+                if items.get('packages'):
+                    try:
+                        host['containers'][ctnr]['packages'] = items[
+                            'packages'].split()
+                    except AttributeError:
+                        pass
+                    finally:
+                        host['containers'][ctnr]['packages'] = set(
+                            host['containers'][ctnr]['packages'])
 
                 # Convert rules' files (second list item) to a proper list
                 try:

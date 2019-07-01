@@ -165,6 +165,7 @@ class TestConfig(unittest.TestCase):
                     'fake': {
                         'source': '/this/is/the/source',
                         'destination_create': True,
+                        'packages': ['pkg1', 'pkg2', 'pkg1'],
                         'pkg': True,
                         'rules': ['include', ['file']]
                     }
@@ -181,7 +182,7 @@ class TestConfig(unittest.TestCase):
                 'faker': {
                     'source': '/path/to/src',
                     'destination': '/path/to/dest',
-                    'packages': ['pkg1', 'pkg2'],  # A list
+                    'packages': {'pkg1', 'pkg2'},  # A set
                     'rules': {
                         'pkg1': ['include', ['file']],  # A list in a list
                         'pkg2': ['exclude', ['file']]  # Key was retained
@@ -191,6 +192,7 @@ class TestConfig(unittest.TestCase):
                     'source':
                     '/this/is/the/source',  # Overwrites general value
                     'destination_create': True,
+                    'packages': {'pkg1', 'pkg2'},  # list->set
                     'pkg': True,
                     'rules': ['include', ['file']]  # Remains unchanged
                 }
