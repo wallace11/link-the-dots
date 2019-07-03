@@ -2,6 +2,15 @@ from socket import gethostname
 import json
 
 
+options = {
+    'dry_run': 'Forces dry-run (no change) mode',
+    'overwrite': ('Overwrite conflicting files in destination '
+                  '(Warning: Can cause data loss!)'),
+    'verbose': 'Behold! Every change is going to be listed!',
+    'group_output': 'Display output in order or group by status'
+}
+
+
 class Config():
     def __init__(self, conf='config.json'):
         try:
@@ -42,7 +51,11 @@ class Config():
         # Get config section
         try:
             section = self._get_section()
-            host = self.config[section]
+            general_bool = {
+                k: v for k, v in self.config['general'].items()
+                if k in options.keys()}
+            # Initiate host bool options on top of general
+            host = dict_update(general_bool, self.config[section])
             if 'name' not in host:
                 host['name'] = section
         except KeyError:
@@ -116,9 +129,5 @@ class Config():
                     section))
         except KeyError:
             raise Warning('No "containers" key in "{}".'.format(section))
-
-        # Move over options from general
-        for option in ('group_output', ):
-            host[option] = self.config['general'].get(option)
 
         return host

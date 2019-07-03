@@ -4,7 +4,7 @@ from sys import exit
 import argparse
 import os
 
-from linkthedots.config import Config
+from linkthedots.config import Config, options
 from linkthedots.stow import Stow
 from linkthedots.style import Style
 from linkthedots.functions import shrinkuser
@@ -24,9 +24,9 @@ def run():
         exit('Config error: {}'.format(e))
 
     # Overwrite options from commandline args
-    for opt in ('dry_run', 'overwrite', 'verbose'):
-        if getattr(args, opt):
-            options[opt] = True
+    options.update(
+        {k: v
+         for k, v in vars(args).items() if v and k != 'config'})
 
     options.get('dry_run', None) and style.print(
         'Running in dry (no change) mode...', 'notify', bold=False)
@@ -71,25 +71,15 @@ def parse_args():
                         dest='config',
                         default='config.json',
                         help='Path to the config file')
-    parser.add_argument('-d',
-                        '--dry-run',
-                        dest='dry_run',
-                        default=None,
-                        action='store_true',
-                        help='Forces dry-run (no change) mode')
-    parser.add_argument('-o',
-                        '--overwrite',
-                        dest='overwrite',
-                        default=None,
-                        action='store_true',
-                        help=('Overwrite conflicting files in destination '
-                              '(Warning: Can cause data loss!)'))
-    parser.add_argument('-v',
-                        '--verbose',
-                        dest='verbose',
-                        default=None,
-                        action='store_true',
-                        help='Behold! Every change is going to be listed!')
+
+    # Add boolean parameterc
+    for option, desc in options.items():
+        parser.add_argument('-{}'.format(option[0]),
+                            '--{}'.format(option.replace('_', '-')),
+                            dest=option,
+                            default=None,
+                            action='store_true',
+                            help=desc)
 
     return parser.parse_args()
 
