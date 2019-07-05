@@ -40,7 +40,7 @@ def run():
                 title = 'Stowing files in "{}"'.format(ctnr)
                 src, dest = map(shrinkuser,
                                 (opt['source'], opt['destination']))
-            except KeyError:
+            except (KeyError, AttributeError):
                 raise
             else:
                 title = '{} ({} -> {})'.format(title, src, dest)
@@ -58,10 +58,9 @@ def run():
                     continue
 
             stow_container(ctnr, **opt, **extra_opts)
-        except (TypeError, KeyError):
+        except (TypeError, KeyError, AttributeError):
             style.print(
-                'No valid destination for container "{}". Skipping...'.format(
-                    ctnr), 'warning')
+                'Invalid source/destination setting. Skipping...', 'warning')
 
 
 def parse_args():

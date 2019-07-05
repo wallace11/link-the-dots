@@ -74,22 +74,27 @@ class Config():
                     general_ctnr = self.config['general']['containers'][ctnr]
                     host['containers'][ctnr] = dict_update(general_ctnr, items)
                 except AttributeError as e:  # Raises if not a dict
-                    if isinstance(items, str):
-                        # Explicitly set src/dest since they're not keys
+                    # if isinstance(items, str):
+                    try:
+                        if 'source' not in items:
+                            # Explicitly set source
+                            host['containers'][ctnr]['source'] = general_ctnr
+                    except TypeError:
+                        # Explicitly set src/dest since both are missing
                         host['containers'][ctnr] = {
-                            'source': general_ctnr,
+                            'source': general_ctnr or None,
                             'destination': items
                         }
                         continue  # No need to further process
-                    else:
-                        raise Warning(
-                            'Container "{}" improperly formatted.'.format(ctnr))
                 except KeyError:
                     raise Warning(
                         'Container "{}" doesn\'t appear in "general".'.format(
                             ctnr))
                 except TypeError:
                     raise Warning('Improperly formatted general "Containers".')
+                except ValueError:
+                    raise Warning(
+                        'Container "{}" improperly formatted.'.format(ctnr))
 
                 # Convert packages to a proper list
                 if items.get('packages'):
