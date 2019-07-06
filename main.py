@@ -95,12 +95,6 @@ def stow_container(container, **opts):
             pkg if not opts.get('pkg') else container)
         style.print(title, 'title', bold=False)
 
-        # Skip packages that do not exist
-        if not os.path.isdir(os.path.join(source, pkg)):
-            style.done('Package was not found in dotfiles path. Skipping...',
-                       'warning', len(title), 'warning')
-            continue
-
         # Work out include/exclude files
         rule_fallback = ('include', [])
         try:
@@ -136,7 +130,17 @@ def show_pkg_results(stow_result,
     # Set statistics
     stats = ['{total} file(s) {res}'.format(total=len(files), res=state)
              for state, files in results.items() if files]
-    stats = ', '.join(stats) if stats else 'Nothing changed'
+    output = {'text': ', '.join(stats), 'style': 'check'}
+
+    if not output['text']:
+        if not os.path.isdir(source):
+            output = {
+                'text': "Package wasn't found in source. Skipping...",
+                'style': 'warning'
+            }
+        else:
+            output['text'] = 'Nothing changed...'
+        verbose = False  # There's really nothing to show
 
     # Show results
     if verbose:
@@ -149,7 +153,7 @@ def show_pkg_results(stow_result,
 
         # Just show summary if there's nothing special to display
         if not notify_states:
-            style.done(stats, 'check', len(title) + 2)
+            style.done(**output, col=len(title) + 2)
             return True
 
     # List of each file and its result (state)
@@ -166,7 +170,7 @@ def show_pkg_results(stow_result,
                    text=state.capitalize(),
                    **style.stow_states[state])
 
-    style.print(stats, 'check', bold=True)
+    style.print(**output, bold=True)
 
 
 if __name__ == '__main__':

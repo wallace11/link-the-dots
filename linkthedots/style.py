@@ -92,8 +92,8 @@ class Style():
         output = filter(None, output)
         return ' '.join(output)
 
-    def print(self, text, sign, **kwargs):
-        print(self._msg(text, **self.templates[sign], **kwargs))
+    def print(self, text, style, **kwargs):
+        print(self._msg(text, **self.templates[style], **kwargs))
 
     def link(self, src, dest, icon='🔗', text='Linking', color='green'):
         output = [
