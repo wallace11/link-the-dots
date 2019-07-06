@@ -8,7 +8,6 @@ class Stow():
                  name,
                  dry_run=False,
                  overwrite=False,
-                 verbose=False,
                  include=[],
                  exclude=[]):
         self.src = os.path.expanduser(source)
@@ -16,7 +15,6 @@ class Stow():
         self.hostname = name
         self.dry_run = dry_run
         self.overwrite = overwrite
-        self.verbose = verbose
         self.include = include
         self.exclude = exclude
         self.states = ('stowed', 'restowed', 'replaced', 'skipped')
