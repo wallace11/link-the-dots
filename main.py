@@ -25,11 +25,10 @@ def run():
 
     # Overwrite options from commandline args
     options.update(
-        {k: v
-         for k, v in vars(args).items() if v and k != 'config'})
+        {k: v for k, v in vars(args).items() if v and k != 'config'})
 
-    options.get('dry_run', None) and style.print(
-        'Running in dry (no change) mode...', 'notify', bold=False)
+    if options.get('dry_run', None):
+        style.print('Running in dry (no change) mode...', 'notify')
 
     extra_opts = {k: v for k, v in options.items() if k != 'containers'}
     containers = options.get('containers')
@@ -122,23 +121,21 @@ def stow_container(container, **opts):
         to_stow = stow.collect()
         stow_result = stow.create(to_stow)
 
-        show_results(stow_result, title, **opts)
+        show_pkg_results(stow_result, title, **opts)
 
 
-def show_results(stow_result,
-                 title,
-                 source,
-                 destination,
-                 verbose=False,
-                 group_output=False,
-                 **kwargs):
+def show_pkg_results(stow_result,
+                     title,
+                     source,
+                     destination,
+                     verbose=False,
+                     group_output=False,
+                     **kwargs):
     results = stow_result.get('results')
 
     # Set statistics
-    stats = []
-    for key, files in results.items():
-        files and stats.append('{total} file(s) {res}'.format(total=len(files),
-                                                              res=key))
+    stats = ['{total} file(s) {res}'.format(total=len(files), res=state)
+             for state, files in results.items() if files]
     stats = ', '.join(stats) if stats else 'Nothing changed'
 
     # Show results
@@ -155,11 +152,11 @@ def show_results(stow_result,
             style.done(stats, 'check', len(title) + 2)
             return True
 
-    res = ((state, f) for state, files in notify_states for f in files)
+    # List of each file and its result (state)
+    res = [(state, f) for state, files in notify_states for f in files]
 
+    # Sort results according to the original file list (grouped by default)
     if not group_output:
-        # Results are grouped by default and need to be sorted according to
-        # the original files list otherwise.
         order = {f: i for i, f in enumerate(stow_result['files'])}
         res = sorted(res, key=lambda x: order.get(x[1]))
 
