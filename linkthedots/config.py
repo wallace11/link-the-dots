@@ -73,8 +73,7 @@ class Config():
                     # Try to copy over container options from general section
                     general_ctnr = self.config['general']['containers'][ctnr]
                     host['containers'][ctnr] = dict_update(general_ctnr, items)
-                except AttributeError as e:  # Raises if not a dict
-                    # if isinstance(items, str):
+                except AttributeError:  # Raises if not a dict
                     try:
                         if 'source' not in items:
                             # Explicitly set source
