@@ -84,24 +84,21 @@ def parse_args():
 
 def stow_container(container, **opts):
     source = os.path.expanduser(opts['source'])
+    is_pkg = opts.get('pkg')
 
     # Work out packages to stow
-    pkgs = [source] if opts.get('pkg') else opts.get('packages',
-                                                     os.listdir(source))
+    pkgs = [container] if is_pkg else opts.get('packages',
+                                                        os.listdir(source))
 
     # Stow packages
     for pkg in pkgs:
-        title = 'Stowing {}...'.format(
-            pkg if not opts.get('pkg') else container)
+        title = 'Stowing {}...'.format(pkg)
         style.print(title, 'title', bold=False)
 
         # Work out include/exclude files
         rule_fallback = ('include', [])
         try:
-            if not opts.get('pkg'):
-                rule, s_files = opts.get('rules', {}).get(pkg, rule_fallback)
-            else:
-                rule, s_files = opts.get('rules', rule_fallback)
+            rule, s_files = opts.get('rules', {}).get(pkg, rule_fallback)
         except ValueError:
             # Empty rules
             rule, s_files = rule_fallback
@@ -109,7 +106,10 @@ def stow_container(container, **opts):
         # Execute
         stow_args = ('destination', 'name', 'dry_run', 'overwrite')
         stow_args = {arg: opts.get(arg, None) for arg in stow_args}
-        stow_args.update({'source': os.path.join(source, pkg), rule: s_files})
+        stow_args.update({
+            'source': source if is_pkg else os.path.join(source, pkg),
+            rule: s_files
+        })
 
         stow = Stow(**stow_args)
         to_stow = stow.collect()

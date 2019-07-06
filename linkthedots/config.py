@@ -113,15 +113,12 @@ class Config():
 
                     if rules and is_pkg:
                         rules = {ctnr: rules}
+                        host['containers'][ctnr]['rules'] = rules
 
                     for pkg, (rule, files) in rules.items():
                         try:
-                            if not is_pkg:
-                                host['containers'][ctnr]['rules'][pkg][1] = (
-                                    files.split())
-                            else:
-                                host['containers'][ctnr]['rules'][1] = (
-                                    files.split())
+                            host['containers'][ctnr]['rules'][pkg][1] = (
+                                files.split())
                         except AttributeError:
                             # Already a list
                             pass
