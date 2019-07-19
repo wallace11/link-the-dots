@@ -1,11 +1,12 @@
+<img align="left" width="100" height="100" src="https://repository-images.githubusercontent.com/191015829/b8897f80-aa82-11e9-8272-9586c23b4f7f">
+
 # Link The Dots
 
-A simple utility for Linux that allows easy management of [dotfiles](https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory) (aka dots) deployment, usually on more than one system, while maintaining the same set of directories and files ("packages") for all of them.
-
-Link The Dots "packages" use similar structure to the so-called [GNU Stow](https://www.gnu.org/software/stow/) software packages, which makes it extremely easy for users to migrate from using this tool.
-
+A simple utility for Linux that allows easy management of [dotfiles](https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory) (aka dots) deployment, usually on more than one system, while maintaining the same set of directories and files ("packages") for all of them.\
+Link The Dots "packages" use similar structure to the so-called [GNU Stow](https://www.gnu.org/software/stow/) software packages, which makes it extremely easy for users to migrate from using this tool.\
 The tool strives to be as portable as possible, requiring only Python 3.4+ as a dependency, and is intended to live as part of the dotfiles either as a cloned repository or as a submodule.
 
+![link-the-dots-demo](https://my-take-on.tk/img/repo-assets/link-the-dots/link-the-dots-demo.apng)
 
 ## Features (Or: What Link The Dots will do for you)
 
@@ -39,8 +40,7 @@ The tool strives to be as portable as possible, requiring only Python 3.4+ as a 
 1. Clone this repository.
 2. Create [`config.json`](#the-config-file) inside the cloned directory with the desired options.
 3. Run `./main.py` or `python3 link-the-dots` (if you're one level above) to deploy\*.
-4. ???
-5. All packages should now be symlinked to their respective locations.
+4. All packages should now be symlinked to their respective locations.
 
 See `main.py --help` for more options.
 
@@ -304,20 +304,15 @@ In other words, it tries to solve a simple problem by not creating a bunch of ot
 
 ### GNU Stow is enough. Change my mind.
 
-Think GNU Stow with the ability to always stow the same packages without the need to remember which package belong to which machine.
-
-Think GNU Stow that allows you to stow [only part of a package](#rules).
-
-Think GNU Stow that supports [assigning the same file name](#hints) to be stowed on different machines.
-
+Think GNU Stow with the ability to always stow the same packages without the need to remember which package belong to which machine.\
+Think GNU Stow that allows you to stow [only part of a package](#rules).\
+Think GNU Stow that supports [assigning the same file name](#hints) to be stowed on different machines.\
 Convinced yet?
 
 ### I'm afraid that this tool will mess up my dotfiles.
 
-At this point, the project is indeed considered beta.
-
-It was tested on all of my machines, on different Linux distributions and I made sure to iron out all the bugs that I could find.
-
+At this point, the project is indeed considered beta.\
+It was tested on all of my machines, on different Linux distributions and I made sure to iron out all the bugs that I could find.\
 I also made sure to write a test suite that'd simulate all kinds of scenarios, to make sure nothing gets destroyed.
 
 However, being one person with one set of mind has its limits so if you find this project interesting but afraid to try it, I encourage you to try it with the `--dry-run` option first, or even in a "controlled" environment where `source` contains dummy packages and `destination` is an empty directory.
@@ -336,8 +331,7 @@ Different opinions and use cases may also exist, so I'm open to changing my opin
 
 ### All this sounds nice and all but how do I sync my dotfiles between all of my machines?
 
-That is a job for another tool and is entirely up to you!
-
+That is a job for another tool and is entirely up to you!\
 You can host your dotfiles in a git repository and add this module as a submodule, or you can use a tool like [Syncthing](https://syncthing.net), or an online "cloud" service like Dropbox, Mega.co.nz or Google Drive. You can even use a thumb drive to backup your dotfiles if you really wanted to!
 
 
