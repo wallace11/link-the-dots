@@ -91,7 +91,7 @@ def stow_container(container, **opts):
                                                         os.listdir(source))
 
     # Stow packages
-    for pkg in pkgs:
+    for pkg in sorted(pkgs):
         title = 'Stowing {}...'.format(pkg)
         style.print(title, 'title', bold=False)
 
