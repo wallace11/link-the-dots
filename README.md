@@ -1,4 +1,4 @@
-<img align="left" width="100" height="100" src="https://repository-images.githubusercontent.com/191015829/b8897f80-aa82-11e9-8272-9586c23b4f7f">
+<img align="left" width="95" height="95" src="https://repository-images.githubusercontent.com/191015829/b8897f80-aa82-11e9-8272-9586c23b4f7f">
 
 # Link The Dots
 
@@ -24,7 +24,7 @@ The tool strives to be as portable as possible, requiring only Python 3.4+ as a 
 
 ## Dependencies
 
-- Python 3.4+
+- Python 3.6+
 - A functioning brain ;)
 
 
@@ -75,7 +75,7 @@ Link The Dots will run in the following order:
 
 ### The Config File
 
-The config file is written in JSON and must contain *at least* two [sections](#terminology): `general` and `hostname`, where `hostname` refers to the machine it is intended for.
+The config file is written in JSON and must contain *at least* two [sections](#terminology): `general` and `hostname`, where `hostname` refers to the machine it's intended for.
 
 Let's start with a basic example:
 
@@ -94,7 +94,8 @@ Let's start with a basic example:
 }
 ```
 
-In the above example we have one section called "computer" and one container called "dotfiles". All packages in `/path/to/src` will be symlinked to `/path/to/dest`. Very simple and straightforward.
+In the above example we have one section called "computer" and one container called "dotfiles".\
+All packages in `/path/to/src` will be symlinked to `/path/to/dest`. Very simple and straightforward.
 
 This is actually the equivalent of using `stow --target=/path/to/target -R package` for any package in `/path/to/src`.
 
@@ -131,7 +132,7 @@ Assume that the machine hostname is `mycomputer`:
 | thebestcomputer | mycomputer          | mycomputer               |
 | my-computer     | my-name             | error: section not found |
 
-In order to identify the machine, either the section or the `name` value must be equal to the machine's hostname.
+In order to identify the machine, either the section or the `name` value must be equal to the machine's hostname.\
 The hint is affected only from the `name` value, however if it's not set then it falls back to the section key.
 
 **Note:** Both section name and `name` are CaSe InSeNsItIvE.
@@ -195,7 +196,7 @@ In some cases, there's a package that doesn't quite fit in any container, or it 
 
 `pkg` option will make the container behave like a single package.
 
-If this `pkg` is set to `true`, [`packages`](#packages) will have no effect.
+**Note:** If this `pkg` is set to `true`, [`packages`](#packages) will have no effect.
 
 
 ##### `rules`
@@ -208,42 +209,42 @@ Consider the following container tree:
 
 ```bash
 container
-├── package a
-│   ├── .config
-│   │   ├── package a
-│   │   │   ├── config
-│   │   │   ├── important a
-│   │   │   └── important b
-├── package b
-│   ├── .directory
-│   │   ├── no-need
-│   │   │   ├── main
-│   │   │   └── extra
-│   │   └── config
+├── package-a
+│   └── .config
+│       └── package-a
+│           ├── config
+│           ├── important-a
+│           └── important-b
+└── package-b
+    └── .directory
+        ├── config
+        └── no-need
+            ├── extra
+            └── main
 ```
 
 With the following `rules`:
 ```json
 "rules": {
-    "package a": ["include", ["important a", "important b"]],
+    "package a": ["include", ["important-a", "important-b"]],
     "package b": ["exclude", "no-need"]
 }
 ```
 
-- For `package a`: the files `important a` and `important b` will be stowed, but not `config`.
-- For `package b`: everything besides `no-need` will be stowed. Since `no-need` is a directory, all files within it will be skipped as well.
+- For `package-a`: the files `important-a` and `important-b` will be stowed, but not `config`.
+- For `package-b`: everything besides `no-need` will be stowed. Since `no-need` is a directory, all files within it will be skipped as well.
 
 ###### Some notes
 - For each package, either "include" or "exclude" rule can be applied, not both.
 - `rules` files (second list item) are **case sensitive**.
 - `rules` files (second list item) can be either a list or a space-separated string. Therefore, `["include", ["a", "b"]]` is equivalent to `["include", "a b"]`.
-- Rules can match substrings as well. The above example of `package a` could be simplified to `["include", "important"]` which will match both `important a` and `important b`.
+- Rules can match substrings as well. The above example of `package-a` could be simplified to `["include", "important"]` which will match both `important-a` and `important-b`.
 - If `pkg` option is used, `rules` value should be a list: `"rules": ["include/exclude", "packages"]`. Otherwise, a config error will be raised.
 
 
 ### Hints
 
-Hints are like an extension to `rules`, where `rules` cannot be applied.
+Hints are like an extension to `rules` where `rules` cannot be applied.
 
 Consider a situation where there's a config file for two different machines - both files must be named `config`, however it's impossible to include/exclude them via `rules`. Enter hints!
 
