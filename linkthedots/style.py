@@ -14,7 +14,7 @@ class Style():
         self.WHITE = '37'
         self.ERASE_LINE = 'K'
         self.UP = '1A'
-        self.RIGHT = lambda x: '{}C'.format(x)
+        self.RIGHT = lambda count: f'{count}C'
         self.templates = {
             'header': {
                 'sign': '',
@@ -45,11 +45,11 @@ class Style():
             },
             'restowed': {
                 'color': 'cyan',
-                # 'icon': '♻️'
+                'icon': '♻️'
             },
             'replaced': {
                 'color': 'magenta',
-                # 'icon': '📥'
+                'icon': '📥'
             },
             'skipped': {
                 'color': 'red'
@@ -57,62 +57,78 @@ class Style():
         }
 
     def _get_code(self, code, suffix='', *args):
+        """
+        Returns a terminal code corresponding to its name
+        (defined by this module)
+        """
+        # This simplifies calls to this function
+        # by automatically converting names to attributes
         code = getattr(self, code.upper())
+
+        # Some terminal codes have optional arguments (like going up x times)
         if args:
             code = code(*args)
-        return '\33[{code}{suffix}'.format(code=code, suffix=suffix)
 
-    def _set_color(self,
-                   text,
-                   color,
-                   bold=False,
-                   underline=False,
-                   italic=False):
+        return f'\33[{code}{suffix}'
+
+    def _format(self, text, *styles):
+        """
+        Returns a formatted string using corresponding terminal codes.
+        Options: color name, bold, underline, italic
+        """
         if not text:
             return ''
-        output = [
-            self._get_code(color, 'm'), text,
-            self._get_code('reset', 'm')
-        ]
-        bold and output.insert(1, self._get_code('bold', 'm'))
-        italic and output.insert(1, self._get_code('italic', 'm'))
-        underline and output.insert(1, self._get_code('underline', 'm'))
+
+        output = [self._get_code(style, 'm') for style in styles]
+        output += [text, self._get_code('reset', 'm')]
+
         return ''.join(output)
 
-    def _set_command(self, command, *args):
+    def _command(self, command, *args):
+        """ Returns a formatted terminal code for the corrosponding command """
         return self._get_code(command, '', *args)
 
-    def _msg(self, text, sign, colors=('black', 'white'), **kwargs):
+    def _msg(self, text, sign=None, colors=('black', 'white'), **formats):
+        """
+        Forms a string consisting of individually-colored text and sign strings.
+        Additional styles are applied uniformly
+        """
         if isinstance(colors, str):
             colors = [colors] * 2
-        output = [
-            self._set_color(sign, colors[0], **kwargs),
-            self._set_color(text, colors[1], **kwargs)
-        ]
-        output = filter(None, output)
+
+        text_to_color = (zip([sign, text], colors) if sign
+                         else [[text, colors[1]]])
+
+        output = [self._format(text, color, *formats.keys())
+                  for text, color in text_to_color]
+
         return ' '.join(output)
 
-    def print(self, text, style, **kwargs):
-        print(self._msg(text, **self.templates[style], **kwargs))
+    def print(self, text, style=None, **formats):
+        output = (self._msg(text, **self.templates[style], **formats) if style
+                  else text)
+        print(output)
 
     def link(self, src, dest, icon='🔗', text='Linking', color='green'):
+        """ Prints out a predefined template for links """
         output = [
-            self._set_color('{} {}'.format(icon, text), 'white', bold=False),
-            self._set_color(src, 'blue', bold=True),
-            self._set_color('➡', 'reset', bold=False),
-            self._set_color(dest, color, bold=True)
+            self._format(f'{icon} {text}', 'white', 'bold'),
+            self._format(src, 'blue', 'bold'),
+            self._format('➡', 'reset', 'bold'),
+            self._format(dest, color, 'bold')
         ]
-        print(' '.join(output))
+        self.print(' '.join(output))
 
     def done(self, text, style, col):
+        """
+        Prints out a predefined template for "done" messages.
+        They come at the end of the previous line,
+        so the exact position (col) is needed.
+        """
         output = [
-            self._set_command('erase_line'),
-            self._set_command('up'),
-            self._msg('', **self.templates[style]),
-            self._set_command('right', col),
-            self._msg(text,
-                      '',
-                      colors=self.templates[style]['colors'],
-                      bold=True)
+            self._command('erase_line'),
+            self._command('up'),
+            self._command('right', col + 1),
+            self._format(text, *self.templates[style]['colors'], 'bold')
         ]
-        print(''.join(output))
+        self.print(''.join(output))
