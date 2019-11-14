@@ -71,7 +71,7 @@ def parse_args():
                         default='config.json',
                         help='Path to the config file')
 
-    # Add boolean parameterc
+    # Add boolean parameters
     for option, desc in options.items():
         parser.add_argument(f'-{option[0]}',
                             f'--{option.replace("_", "-")}',
@@ -89,7 +89,7 @@ def stow_container(container, **opts):
 
     # Work out packages to stow
     pkgs = [container] if is_pkg else opts.get('packages',
-                                                        os.listdir(source))
+                                               os.listdir(source))
 
     # Stow packages
     for pkg in sorted(pkgs):
