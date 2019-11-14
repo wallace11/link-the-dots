@@ -21,7 +21,7 @@ def run():
     try:
         options = Config(conf=args.config).read()
     except Warning as e:
-        exit('Config error: {}'.format(e))
+        exit(f'Config error: {e}')
 
     # Overwrite options from commandline args
     options.update(
@@ -36,13 +36,13 @@ def run():
     for ctnr, opt in containers.items():
         try:
             try:
-                title = 'Stowing files in "{}"'.format(ctnr)
+                title = f'Stowing files in "{ctnr}"'
                 src, dest = map(shrinkuser,
                                 (opt['source'], opt['destination']))
             except (KeyError, AttributeError):
                 raise
             else:
-                title = '{} ({} -> {})'.format(title, src, dest)
+                title = f'{title} ({src} -> {dest})'
             finally:
                 style.print(title, 'header')
 
@@ -51,9 +51,10 @@ def run():
                 if not os.access(os.path.expanduser(opt['destination']),
                                  os.W_OK):
                     style.print((
-                        'Destination "{}" inaccessible. Use key '
-                        '"destination_create" to force creation of destination.'
-                    ).format(opt['destination']), 'warning')
+                        f'Destination "{opt["destination"]}" inaccessible.'
+                        ' Use key "destination_create" to force creation'
+                        ' of destination.'
+                    ), 'warning')
                     continue
 
             stow_container(ctnr, **opt, **extra_opts)
@@ -72,8 +73,8 @@ def parse_args():
 
     # Add boolean parameterc
     for option, desc in options.items():
-        parser.add_argument('-{}'.format(option[0]),
-                            '--{}'.format(option.replace('_', '-')),
+        parser.add_argument(f'-{option[0]}',
+                            f'--{option.replace("_", "-")}',
                             dest=option,
                             default=None,
                             action='store_true',
@@ -92,7 +93,7 @@ def stow_container(container, **opts):
 
     # Stow packages
     for pkg in sorted(pkgs):
-        title = 'Stowing {}...'.format(pkg)
+        title = f'Stowing {pkg}...'
         style.print(title, 'title', bold=False)
 
         # Work out include/exclude files
@@ -128,7 +129,7 @@ def show_pkg_results(stow_result,
     results = stow_result.get('results')
 
     # Set statistics
-    stats = ['{total} file(s) {res}'.format(total=len(files), res=state)
+    stats = [f'{len(files)} file(s) {state}'
              for state, files in results.items() if files]
     output = {'text': ', '.join(stats), 'style': 'check'}
 
