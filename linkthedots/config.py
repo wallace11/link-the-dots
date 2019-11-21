@@ -17,9 +17,9 @@ class Config():
             with open(conf, 'r') as c:
                 self.config = json.load(c)
         except FileNotFoundError:
-            raise Warning('File "{}" not found.'.format(conf))
+            raise Warning(f'File "{conf}" not found.')
         except json.decoder.JSONDecodeError as e:
-            raise Warning('Incorrectly formatted config file ({})'.format(e))
+            raise Warning(f'Incorrectly formatted config file ({e})')
 
     def _get_section(self, hostname=gethostname()):
         """
@@ -62,8 +62,7 @@ class Config():
             if section in map(lambda x: x.lower(), self.config.keys()):
                 raise Warning('Section names must be in lowercase.')
             raise Warning(
-                'Section matching machine\'s hostname "{}" wasn\'t found.'.
-                format(section))
+                f'Section matching machine\'s hostname "{section}" wasn\'t found.')
 
         # Some tweaks to the containers section
         try:
@@ -87,13 +86,12 @@ class Config():
                         continue  # No need to further process
                 except KeyError:
                     raise Warning(
-                        'Container "{}" doesn\'t appear in "general".'.format(
-                            ctnr))
+                        f'Container "{ctnr}" doesn\'t appear in "general".')
                 except TypeError:
                     raise Warning('Improperly formatted general "Containers".')
                 except ValueError:
                     raise Warning(
-                        'Container "{}" improperly formatted.'.format(ctnr))
+                        f'Container "{ctnr}" improperly formatted.')
 
                 # Convert packages to a proper list
                 if items.get('packages'):
@@ -124,18 +122,16 @@ class Config():
                             pass
                 except TypeError:
                     raise Warning(
-                        'Improperly formatted rule "{}" in "{}" container.'.
-                        format(pkg, ctnr))
+                        f'Improperly formatted rule "{pkg}" in "{container}" container.')
                 except (AttributeError, KeyError, ValueError):
-                    err = 'Improperly formatted rules for "{}"'.format(ctnr)
+                    err = f'Improperly formatted rules for "{ctnr}"'
                     if is_pkg:
                         err += ' (maybe because "pkg" is True?)'
                     raise Warning(err)
         except AttributeError:
             raise Warning(
-                'Improperly formatted "containers" value in "{}".'.format(
-                    section))
+                f'Improperly formatted "containers" value in "{section}".')
         except KeyError:
-            raise Warning('No "containers" key in "{}".'.format(section))
+            raise Warning(f'No "containers" key in "{section}".')
 
         return host
