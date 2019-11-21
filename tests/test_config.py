@@ -41,7 +41,7 @@ class TestConfig(unittest.TestCase):
                     "source": "/path/to/fake" \
                 } \
             } \
-        }'                                                    # Missing one closing bracket
+        }'  # Missing one closing bracket
 
         with self.assertRaises(Warning):
             self.makeconf(fake_config, use_dumps=False).read()
@@ -57,44 +57,67 @@ class TestConfig(unittest.TestCase):
             self.makeconf(self.fake_config).read()
 
     def test_improperly_formatted_containers(self):
-        # yapf: disable
-        bad = [{'containers': ''},
-               {'containers': []},
-               {'containers': {'fake': {}}}
-               ]
-        # yapf: enable
+        bad = [
+            {'containers': ''},
+            {'containers': []},
+            {'containers': {'fake': {}}}
+        ]
 
+        # Test host section
         for b in bad:
             self.fake_config[self.hostname] = b
             with self.assertRaises(Warning):
                 self.makeconf(self.fake_config).read()
 
+        # Test general section
         self.fake_config[self.hostname] = {}
         for b in bad:
             self.fake_config['general'] = b
             with self.assertRaises(Warning):
                 self.makeconf(self.fake_config).read()
 
+        # Test general section when host exists
         self.fake_config[self.hostname] = bad[2]
         for b in bad[:2]:
             self.fake_config['general'] = b
             with self.assertRaises(Warning):
                 self.makeconf(self.fake_config).read()
 
+    def test_improperly_formatted_individual_container(self):
+        bad = [
+            {'containers': {'fake': {}}}
+        ]
+
+        # Host is bad
+        for b in bad:
+            self.fake_config[self.hostname] = b
+            with self.assertRaises(Warning):
+                self.makeconf(self.fake_config).read()
+
+        # Host is good; General is bad
+        self.fake_config[self.hostname] = {'containers': {'fake': 'ttt'}}
+        for b in bad:
+            self.fake_config['general'] = b
+            with self.assertRaises(Warning):
+                self.makeconf(self.fake_config).read()
+
     def test_improperly_formatted_rules(self):
-        # yapf: disable
-        bad = [{'rules': ''},
-               {'rules': []}
-               ]
-        # yapf: enable
-        self.fake_config['general'] = {'containers': {'fake': ''}}
-        self.fake_config[self.hostname] = {
-            'containers': {
-                'fake': {
-                    'packages': 'fakepkg'
+        bad = [
+            {'rules': ''},
+            {'rules': []}
+        ]
+
+        fake = {
+            'general': {'containers': {'fake': ''}},
+            self.hostname: {
+                'containers': {
+                    'fake': {
+                        'packages': 'fakepkg'
+                    }
                 }
             }
         }
+        self.fake_config.update(fake)
 
         for b in bad:
             self.fake_config[self.hostname]['containers']['fake'].update(b)
@@ -102,11 +125,10 @@ class TestConfig(unittest.TestCase):
                 self.makeconf(self.fake_config).read()
 
         # Test container is package
-        # yapf: disable
-        bad = [{'rules': ''},
-               {'rules': {'pkg': ''}}
-               ]
-        # yapf: enable
+        bad = [
+            {'rules': ''},
+            {'rules': {'pkg': ''}}
+        ]
         self.fake_config[self.hostname]['containers']['fake']['pkg'] = True
 
         for b in bad:
@@ -117,7 +139,7 @@ class TestConfig(unittest.TestCase):
     def test_hostname(self):
         self.fake_config['general'] = {'containers': {'fake': ''}}
 
-        # Scenario 1: (section = hostname), no name key => (name = section)
+        # Scenario 1: (section = hostname), no name key => (name = hostname)
         self.fake_config[self.hostname] = {'containers': {}}
         self.assertEqual(
             self.makeconf(self.fake_config).read()['name'], self.hostname)
@@ -139,8 +161,10 @@ class TestConfig(unittest.TestCase):
             self.makeconf(self.fake_config).read()
 
     def test_output(self):
+        self.maxDiff = None
         fake_config = {
             'general': {
+                'group_output': False,
                 'containers': {
                     'fake': '/path/to/fake',
                     'faker': {
@@ -149,7 +173,8 @@ class TestConfig(unittest.TestCase):
                         'rules': {
                             'pkg2': ['exclude', 'file']
                         }
-                    }
+                    },
+                    'fakeb': 'fake/src'
                 }
             },
             self.hostname: {
@@ -168,7 +193,8 @@ class TestConfig(unittest.TestCase):
                         'packages': ['pkg1', 'pkg2', 'pkg1'],
                         'pkg': True,
                         'rules': ['include', ['file']]
-                    }
+                    },
+                    'fakeb': 'fake/dest'
                 }
             }
         }
@@ -177,7 +203,7 @@ class TestConfig(unittest.TestCase):
             'name': self.hostname,  # Added key
             'overwrite': True,
             'dry_run': False,
-            'group_output': None,  # Is added
+            'group_output': False,  # Is added
             'containers': {
                 'faker': {
                     'source': '/path/to/src',
@@ -189,12 +215,17 @@ class TestConfig(unittest.TestCase):
                     }
                 },
                 'fake': {
-                    'source':
-                    '/this/is/the/source',  # Overwrites general value
+                    'source': '/this/is/the/source',  # Overwrites general value
                     'destination_create': True,
                     'packages': {'pkg1', 'pkg2'},  # list->set
                     'pkg': True,
-                    'rules': ['include', ['file']]  # Remains unchanged
+                    'rules': {
+                        'fake': ['include', ['file']]  # Changed
+                    }
+                },
+                'fakeb': {
+                    'source': 'fake/src',
+                    'destination': 'fake/dest'
                 }
             }
         }
