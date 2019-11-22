@@ -1,12 +1,31 @@
-<img align="left" width="95" height="95" src="https://repository-images.githubusercontent.com/191015829/b8897f80-aa82-11e9-8272-9586c23b4f7f">
+<img align="left" width="90" height="90" src="https://repository-images.githubusercontent.com/191015829/b8897f80-aa82-11e9-8272-9586c23b4f7f">
 
 # Link The Dots
 
 A simple utility for Linux that allows easy management of [dotfiles](https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory) (aka dots) deployment, usually on more than one system, while maintaining the same set of directories and files ("packages") for all of them.\
 Link The Dots "packages" use similar structure to the so-called [GNU Stow](https://www.gnu.org/software/stow/) software packages, which makes it extremely easy for users to migrate from using this tool.\
-The tool strives to be as portable as possible, requiring only Python 3.4+ as a dependency, and is intended to live as part of the dotfiles either as a cloned repository or as a submodule.
+The tool strives to be as portable as possible, requiring only Python standard library as a dependency, and is intended to live as part of the dotfiles either as a cloned repository or as a submodule.
 
 ![link-the-dots-demo](https://my-take-on.tk/img/repo-assets/link-the-dots/link-the-dots-demo.apng)
+
+# Table of contents
+
+- [Features (Or: What Link The Dots will do for you)](#features-or-what-link-the-dots-will-do-for-you)
+- [Non-Features (Or: What Link The Dots won't do for you)](#non-features-or-what-link-the-dots-wont-do-for-you)
+- [Dependencies](#dependencies)
+- [Quick start (TL;DR version)](#quick-start-tldr-version)
+    - [Requirements](#requirements)
+    - [Create a config file](#create-a-config-file)
+- [How it works](#how-it-works)
+    - [Terminology](#terminology)
+    - [Overview](#overview)
+    - [The Config File](#the-config-file)
+    - [Hints](#hints)
+    - [Command Line Options](#command-line-options)
+- [Typical Setup](#typical-setup)
+- [Tips and Tricks](#tips-and-tricks)
+- [Advanced Example](#advanced-example)
+- [FAQ](#faq)
 
 ## Features (Or: What Link The Dots will do for you)
 
@@ -67,10 +86,10 @@ Link The Dots will run in the following order:
 2. Look for a section corresponding to that of the machine's hostname\* (see [`name`](#name) option for more information).
 3. For each container in the matching section:
     1. Make sure the container is declared at the "general" section and overwrites its keys with the current container's (the current machine's section gets priority).
-    2. Link all the packages from "source" to "destination", based on the [particular settings](#the-config-file) for that container.
-            **Note:** Directories are *created* and not linked. Therefore, if there's a change in the contents of the source (a new file was created, file name was changed, etc...) then the package must be restowed.
+    2. Link all the packages from "source" to "destination", based on the [particular settings](#the-config-file) for that container.\
+        **Note:** Directories are *created* and not linked. Therefore, if there's a change in the contents of the source (a new file was created, file name was changed, etc...) then the package must be restowed.
 
-\* Hostname is obtainable via `cat /etc/hostname`.
+\* Hostname is obtainable via `cat /etc/hostname` or simply `hostname` command on most Linux distributions.
 
 
 ### The Config File
@@ -83,23 +102,28 @@ Let's start with a basic example:
 {
     "general": {
         "containers": {
-            "dotfiles": "/path/to/src"
+            "dotfiles": {
+                "source": "/path/to/src"
+            }
         }
     },
     "mycomputer": {
         "containers":{
-            "dotfiles": "/path/to/dest"
+            "dotfiles": {
+                "source": "/path/to/dest"
+            }
         }
     }
 }
 ```
 
-In the above example we have one section called "computer" and one container called "dotfiles".\
+In the above example we consider a machine with the hostname "mycomputer", and therefore the config file has one *section* called "mycomputer" with one *container* called "dotfiles".\
 All packages in `/path/to/src` will be symlinked to `/path/to/dest`. Very simple and straightforward.
 
 This is actually the equivalent of using `stow --target=/path/to/target -R package` for any package in `/path/to/src`.
 
-#### Adding options
+
+#### Configuring options
 
 A list of all the possible options:
 
@@ -188,6 +212,7 @@ Or a space-separated string:
 ##### `destination_create`
 
 On certain containers, when deploying on a new machine, the destination directory may not exist at all. By default, this kind of scenario will result in an error, however it can be overcome by using this option.
+Please note that setting this option will recursively create the full destination path, just like using `mkdir -p`.
 
 
 ##### `pkg`
@@ -291,6 +316,53 @@ Soon!
 ## Tips and Tricks
 
 Soon!
+
+
+## Advanced example
+
+```json
+{
+    "general": {
+        "group_output": true,
+        "verbose": true,
+        "containers": {
+            "dotfiles": {
+                "source": "~/mydotfiles",
+                "rules": {
+                    "applications": ["exclude", "/scripts bspwm"]
+                }
+            }
+        }
+    },
+    "mysuperawesomeretrocomputer": {
+        "name": "ibm5100",
+        "containers": {
+            "dotfiles": {
+                "destination": "~/test/dest",
+                "destination_create": true,
+                "packages": "bspwm compton dunst nvim",
+                "rules": {
+                    "applications": ["include", "bspwm"]
+                }
+            }
+        }
+    }
+}
+```
+
+Starting from top to bottom:
+- Set to always group output, so all stowed files will appear together, all restowed files will appear together, and so on...
+- Set to always show verbose output.
+- Create one container called "dotfiles".
+    - Set source directory to `~/mydotfiles/`.
+    - Set a rule to "applications" package (effectively `~/mydotfiles/applications/`) that will exclude the directory "scripts" and any file with "bspwm" in its name (effectively `~/mydotfiles/applications/scripts/` and any other directory or file that contains "bspwm" in `~/mydotfiles/applications/`)
+- Create a setting for a machine with hostname "mysuperawesomeretrocomputer".
+- Name it "ibm5100" so [hints](#hints) will be that and not that aweful hostname.
+- Create one container called "dotfiles".
+    - Set destination directory to `~/test/dest/`.
+    - Make sure to create the destination if it doesn't exist (will also create `~/test` if needed).
+    - Choose only certain packages from the container. For instance, `~/mydotfiles/git` will be completely ignored.
+    - Overwrite the general rule for "applications" package to only **include** directories and files that contain "bspwm" in their names.
 
 
 ## FAQ
