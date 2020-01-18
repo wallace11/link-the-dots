@@ -6,7 +6,8 @@ options = {
     'dry_run': 'Forces dry-run (no change) mode',
     'overwrite': ('Overwrite conflicting files in destination '
                   '(Warning: Can cause data loss!)'),
-    'verbose': 'Behold! Every change is going to be listed!',
+    'verbose': ('Used once (-v): Show summary of package changes. '
+                'Used twice (-vv): Behold! Every change is going to be listed!'),
     'group_output': 'Display output in order or group by status'
 }
 

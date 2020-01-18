@@ -36,7 +36,7 @@ def run():
     for ctnr, opt in containers.items():
         try:
             try:
-                title = f'Stowing files in "{ctnr}"'
+                title = f'⠶ Stowing packages in "{ctnr}"'
                 src, dest = map(shrinkuser,
                                 (opt['source'], opt['destination']))
             except (KeyError, AttributeError):
@@ -58,6 +58,10 @@ def run():
                     continue
 
             stow_container(ctnr, **opt, **extra_opts)
+
+            if not options.get('verbose'):
+                style.prepend('check')
+
         except (TypeError, KeyError, AttributeError):
             style.print(
                 'Invalid source/destination setting. Skipping...', 'warning')
@@ -77,7 +81,7 @@ def parse_args():
                             f'--{option.replace("_", "-")}',
                             dest=option,
                             default=None,
-                            action='store_true',
+                            action='store_true' if option != 'verbose' else 'count',
                             help=desc)
 
     return parser.parse_args()
@@ -91,10 +95,15 @@ def stow_container(container, **opts):
     pkgs = [container] if is_pkg else opts.get('packages',
                                                os.listdir(source))
 
+    verbose = opts.get('verbose')
+
     # Stow packages
     for pkg in sorted(pkgs):
-        title = f'Stowing {pkg}...'
-        style.print(title, 'title', bold=False)
+        if verbose:
+            title = f'Stowing {pkg}...'
+            style.print(title, 'title', bold=False)
+        else:
+            title = None
 
         # Work out include/exclude files
         rule_fallback = ('include', [])
@@ -144,17 +153,17 @@ def show_pkg_results(stow_result,
         verbose = False  # There's really nothing to show
 
     # Show results
-    if verbose:
+    if verbose > 1:
         notify_states = results.items()
     else:
         # Notify only on certain results
-        to_notify = ('replaced', 'skipped')
+        to_notify = ('stowed', 'replaced', 'skipped')
         notify_states = [(state, results[state]) for state in to_notify
                          if results[state]]
 
         # Just show summary if there's nothing special to display
         if not notify_states:
-            style.done(**output, col=len(title) + 2)
+            verbose and style.done(**output, col=len(title) + 2)
             return True
 
     # List of each file and its result (state)

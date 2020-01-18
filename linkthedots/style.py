@@ -119,6 +119,17 @@ class Style():
         ]
         self.print(' '.join(output))
 
+    def prepend(self, template):
+        """
+        Prepends a sign from `template` to a previous line.
+        """
+        output = [
+            self._command('erase_line'),
+            self._command('up'),
+            self._msg('', **self.templates[template])
+        ]
+        self.print(''.join(output))
+
     def done(self, text, style, col):
         """
         Prints out a predefined template for "done" messages.
