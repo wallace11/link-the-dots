@@ -6,7 +6,7 @@ A simple utility for Linux that allows easy management of [dotfiles](https://en.
 Link The Dots "packages" use similar structure to the so-called [GNU Stow](https://www.gnu.org/software/stow/) software packages, which makes it extremely easy for users to migrate from using this tool.\
 The tool strives to be as portable as possible, requiring only Python standard library as a dependency, and is intended to live as part of the dotfiles either as a cloned repository or as a submodule.
 
-![link-the-dots-demo](https://my-take-on.tk/img/repo-assets/link-the-dots/link-the-dots-demo.apng)
+![link-the-dots-demo](https://my-take-on.tech/img/repo-assets/link-the-dots/link-the-dots-demo.apng)
 
 # Table of contents
 
