@@ -2,6 +2,8 @@ import os
 
 
 class Stow():
+    STATES = ('stowed', 'restowed', 'replaced', 'skipped')
+
     def __init__(self,
                  source,
                  destination,
@@ -17,7 +19,6 @@ class Stow():
         self.overwrite = overwrite
         self.include = include
         self.exclude = exclude
-        self.states = ('stowed', 'restowed', 'replaced', 'skipped')
 
     def collect(self):
         def need(item):
@@ -88,7 +89,7 @@ class Stow():
     def create(self, files):
         # Set output
         output = {'files': files, 'results': {}}
-        output['results'].update({s: [] for s in self.states})
+        output['results'].update({s: [] for s in self.STATES})
 
         # Symlink all files
         for src, dest in files:
