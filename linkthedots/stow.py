@@ -55,7 +55,7 @@ class Stow():
                 return False, False
             return base, name
 
-        output, replace_hints = [], []
+        output, replace_hints = {}, []
         for root, dirs, files in os.walk(self.src, followlinks=True):
             dest_dir = os.path.join(self.dest,
                                     os.path.relpath(root, start=self.src))
@@ -82,7 +82,11 @@ class Stow():
                 src = os.path.join(root, f)
                 if need(src):
                     dest = os.path.normpath(os.path.join(dest_dir, name))
-                    output.append((src, dest))
+                    # Add only nonexistent or "own" files
+                    if dest not in output.keys() or '#' in src:
+                        output[dest] = src
+
+        output = [(v, k) for k, v in output.items()]
 
         return output
 
